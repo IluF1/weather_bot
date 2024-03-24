@@ -1,5 +1,5 @@
 from config import API_KEY
 import requests
-from handlers import user_city
+from handlers import UserCity
 
-city_for_forecast = user_city.city
+city_for_forecast = UserCity.city
