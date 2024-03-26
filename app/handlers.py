@@ -1,15 +1,11 @@
 from aiogram import Router, F
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
+from app.server.api import get_weather as api
 import app.keyboard as kb
 
 
 router = Router()
-class UserCity(StatesGroup):
-    city = State()
-
 
 @router.message(CommandStart())
 async def start_handler(message: Message):
@@ -17,14 +13,12 @@ async def start_handler(message: Message):
 
 @router.message(Command('weather'))
 @router.message(F.text == 'Погода')
-async def weather_handler(message: Message, state: FSMContext):
-    await state.set_state(UserCity.city)
+async def weather_handler(message: Message):
     await message.answer('Введите желаемый город, для просмотра погоды в нем:')
     
-@router.message(UserCity.city)
-async def set_city(message: Message, state: FSMContext):
-    await state.update_data(city = message.text)
-    await state.clear()
-    
-    
-    
+@router.message()
+async def catch_city(message: Message):
+    global user_city
+    user_city = message.text
+    temperature = api(user_city)
+    await message.answer(f'Данные по погоде в {user_city}е:\n Температура равна {temperature}c')
